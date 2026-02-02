@@ -32,6 +32,11 @@
 
 ## 第6讲：[其它图像处理](https://github.com/hongsong-wang/OpenCV-Python-Image-Processing/blob/main/6_%E5%85%B6%E5%AE%83%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86.pdf)
 
+<p align="center">
+  <img src="images/2_5_Q4_output.jpg" width="39%">
+  <img src="images/2_5_Q3_Image_with_Text.jpg" width="45.5%">
+</p>
+
 ## 第7讲：[动画与视频](https://github.com/hongsong-wang/OpenCV-Python-Image-Processing/blob/main/7_%E5%8A%A8%E7%94%BB%E4%B8%8E%E8%A7%86%E9%A2%91.pdf)
 
 <p align="center">
