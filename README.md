@@ -3,7 +3,8 @@
 ## 第1讲：[OpenCV基础](https://github.com/hongsong-wang/OpenCV-Python-Image-Processing/blob/main/1_OpenCV%E5%9F%BA%E7%A1%80.pdf)
 
 <p align="center">
-  <img src="images/task1.gif" width="800">
+  <img src="images/task1.gif" width="62%">
+  <img src="images/task2.gif" width="25%">
 </p>
 
 ## 第2讲：[图像基础](https://github.com/hongsong-wang/OpenCV-Python-Image-Processing/blob/main/2_%E5%9B%BE%E5%83%8F%E5%9F%BA%E7%A1%80.pdf)
