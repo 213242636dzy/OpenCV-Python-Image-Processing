@@ -42,6 +42,10 @@
 
 ## 第8讲：[目标跟踪](https://github.com/hongsong-wang/OpenCV-Python-Image-Processing/blob/main/8_%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA.pdf)
 
+<p align="center">
+  <img src="images/demo_small.gif" width="500">
+</p>
+
 # Acknowledgements
 本课程已由本人在某985高校为大二暑期本科生连续讲授三年，获得了广泛好评，在此分享给各位网友。制作时主要参考如下资料，如有兴趣请购买正版，尊重原作者版权。
 
