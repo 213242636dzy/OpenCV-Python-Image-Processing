@@ -35,8 +35,8 @@
 ## 第7讲：[动画与视频](https://github.com/hongsong-wang/OpenCV-Python-Image-Processing/blob/main/7_%E5%8A%A8%E7%94%BB%E4%B8%8E%E8%A7%86%E9%A2%91.pdf)
 
 <p align="center">
-  <img src="images/rotate_transition.gif" width="43%">
-  <img src="images/wipe_transition.gif" width="43%">
+  <img src="images/rotate_transition_small.gif" width="43%">
+  <img src="images/wipe_transition_small.gif" width="43%">
 </p>
 
 
