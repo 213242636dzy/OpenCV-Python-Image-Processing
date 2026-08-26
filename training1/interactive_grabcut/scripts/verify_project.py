@@ -7,6 +7,14 @@ import sys
 from pathlib import Path
 
 
+def _configure_utf8_console() -> None:
+    """避免 Windows CI 的 CP1252 控制台无法输出中文诊断。"""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 ROOT = Path(__file__).resolve().parents[1]
 IGNORED_PARTS = {
     ".git",
@@ -41,6 +49,7 @@ REQUIRED = [
 
 
 def main() -> int:
+    _configure_utf8_console()
     errors: list[str] = []
     for relative in REQUIRED:
         path = ROOT / relative

@@ -30,7 +30,7 @@ python -m pytest -q
 结果：
 
 ```text
-项目检查通过：16 个必要文件，16 个 Python 文件语法正确。
+项目检查通过：17 个必要文件，17 个 Python 文件语法正确。
 13 passed, 3 subtests passed in 46.73s
 ```
 
