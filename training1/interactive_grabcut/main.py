@@ -36,6 +36,7 @@ def main() -> int:
         return 1
 
     import cv2
+    from PySide6.QtCore import QTimer
     from PySide6.QtWidgets import QApplication, QMessageBox
 
     # 明确禁用 OpenCL；本项目不调用 CUDA/GPU，也不进行任何网络请求。
@@ -55,6 +56,9 @@ def main() -> int:
     try:
         window = MainWindow()
         window.show()
+        # 供打包后的 CI 启动检查使用。正常用户启动不会进入该分支。
+        if "--ci-smoke" in sys.argv:
+            QTimer.singleShot(1500, app.quit)
         return app.exec()
     except Exception as exc:  # 顶层保护，避免启动失败时没有可读信息
         QMessageBox.critical(None, "程序启动失败", f"{type(exc).__name__}: {exc}")

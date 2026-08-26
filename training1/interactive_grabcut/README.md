@@ -123,3 +123,21 @@ Linux 构建容器若缺少 Qt 系统库，应先安装发行版提供的 `libeg
 
 完整人工验收步骤见 `EXPERIMENT_CHECKLIST.md`。
 本次构建环境的测试记录见 `TEST_REPORT.md`。
+
+## 无需 Python 的便携发行包
+
+GitHub Actions 会在原生 Windows 和 macOS 运行器上使用 PyInstaller 构建成品，并在上传前实际启动一次：
+
+- Windows：`InteractiveGrabCut-Windows-x86_64.zip`，解压后双击 `InteractiveGrabCut.exe`；
+- macOS：`InteractiveGrabCut-macOS-<架构>.zip`，解压后打开 `InteractiveGrabCut.app`。
+
+发行包已经包含 OpenCV、PySide6、中文界面字体和三张规定测试图，不需要另装 Python，运行时也不需要联网。
+macOS 构建未使用 Apple 开发者证书签名；首次打开若被 Gatekeeper 阻止，请右键应用选择“打开”。
+
+本地构建命令：
+
+```bash
+python -m pip install -r requirements-build.txt
+python -m PyInstaller --noconfirm --clean InteractiveGrabCut.spec
+python scripts/verify_packaged_app.py
+```

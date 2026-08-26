@@ -10,8 +10,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
-        python-version: ["3.12"]
+        include:
+          - os: windows-latest
+            python-version: "3.12"
+            package-platform: Windows-x86_64
+            archive-name: InteractiveGrabCut-Windows-x86_64.zip
+          - os: macos-latest
+            python-version: "3.12"
+            package-platform: macOS-arm64
+            archive-name: InteractiveGrabCut-macOS-arm64.zip
     runs-on: ${{ matrix.os }}
     env:
       QT_QPA_PLATFORM: offscreen
@@ -25,12 +32,32 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pip install -r requirements-build.txt
       - run: python scripts/verify_project.py
       - run: python -m unittest discover -s tests -v
       - run: python scripts/ci_smoke_capture.py
+      - run: python -m PyInstaller --noconfirm --clean InteractiveGrabCut.spec
+      - run: python scripts/verify_packaged_app.py
+      - name: Create Windows portable ZIP
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release_artifacts | Out-Null
+          Compress-Archive -Path dist/InteractiveGrabCut -DestinationPath release_artifacts/${{ matrix.archive-name }}
+      - name: Create macOS application ZIP
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p release_artifacts
+          ditto -c -k --sequesterRsrc --keepParent dist/InteractiveGrabCut.app release_artifacts/${{ matrix.archive-name }}
       - uses: actions/upload-artifact@v4
         with:
           name: grabcut-${{ runner.os }}-evidence
           path: ci_artifacts
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: InteractiveGrabCut-${{ matrix.package-platform }}
+          path: release_artifacts/${{ matrix.archive-name }}
+          if-no-files-found: error
+          retention-days: 30

@@ -14,8 +14,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
-        python-version: ["3.12"]
+        include:
+          - os: windows-latest
+            python-version: "3.12"
+            package-platform: Windows-x86_64
+            archive-name: InteractiveGrabCut-Windows-x86_64.zip
+          - os: macos-latest
+            python-version: "3.12"
+            package-platform: macOS-arm64
+            archive-name: InteractiveGrabCut-macOS-arm64.zip
     runs-on: ${{ matrix.os }}
     env:
       QT_QPA_PLATFORM: offscreen
@@ -32,9 +39,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-          cache-dependency-path: training1/interactive_grabcut/requirements-dev.txt
+          cache-dependency-path: training1/interactive_grabcut/requirements-build.txt
       - name: Install dependencies
-        run: python -m pip install --upgrade pip && python -m pip install -r requirements-dev.txt
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements-build.txt
       - name: Verify project
         run: python scripts/verify_project.py
       - name: Check dependencies
@@ -43,6 +50,22 @@ jobs:
         run: python -m pytest -q
       - name: Capture native Qt and GrabCut evidence
         run: python scripts/ci_smoke_capture.py
+      - name: Build portable desktop application
+        run: python -m PyInstaller --noconfirm --clean InteractiveGrabCut.spec
+      - name: Launch packaged application
+        run: python scripts/verify_packaged_app.py
+      - name: Create Windows portable ZIP
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release_artifacts | Out-Null
+          Compress-Archive -Path dist/InteractiveGrabCut -DestinationPath release_artifacts/${{ matrix.archive-name }}
+      - name: Create macOS application ZIP
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p release_artifacts
+          ditto -c -k --sequesterRsrc --keepParent dist/InteractiveGrabCut.app release_artifacts/${{ matrix.archive-name }}
       - name: Upload native evidence
         if: success()
         uses: actions/upload-artifact@v4
@@ -50,3 +73,11 @@ jobs:
           name: grabcut-${{ runner.os }}-evidence
           path: training1/interactive_grabcut/ci_artifacts
           if-no-files-found: error
+      - name: Upload portable application
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: InteractiveGrabCut-${{ matrix.package-platform }}
+          path: training1/interactive_grabcut/release_artifacts/${{ matrix.archive-name }}
+          if-no-files-found: error
+          retention-days: 30

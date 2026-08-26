@@ -30,6 +30,8 @@ IGNORED_PARTS = {
 REQUIRED = [
     "main.py",
     "requirements.txt",
+    "requirements-build.txt",
+    "InteractiveGrabCut.spec",
     "README.md",
     "TEST_REPORT.md",
     "EXPERIMENT_CHECKLIST.md",
@@ -39,6 +41,7 @@ REQUIRED = [
     "app/exporter.py",
     "app/fonts.py",
     "scripts/ci_smoke_capture.py",
+    "scripts/verify_packaged_app.py",
     "assets/fonts/NotoSansCJKsc-UI-Subset.otf",
     "assets/fonts/UI_CHARS.txt",
     "assets/fonts/OFL-1.1.txt",
