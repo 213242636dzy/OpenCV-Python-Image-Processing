@@ -1,0 +1,50 @@
+name: interactive-grabcut-cross-platform
+
+on:
+  push:
+    branches:
+      - codex/interactive-grabcut-cross-platform-ci
+    paths:
+      - "training1/interactive_grabcut/**"
+      - ".github/workflows/interactive-grabcut-cross-platform.yml"
+  workflow_dispatch:
+
+jobs:
+  native-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+        python-version: ["3.12"]
+    runs-on: ${{ matrix.os }}
+    env:
+      QT_QPA_PLATFORM: offscreen
+      QT_QUICK_BACKEND: software
+      CI_ARTIFACT_DIR: ci_artifacts
+    defaults:
+      run:
+        working-directory: training1/interactive_grabcut
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: training1/interactive_grabcut/requirements-dev.txt
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements-dev.txt
+      - name: Verify project
+        run: python scripts/verify_project.py
+      - name: Check dependencies
+        run: python -m pip check
+      - name: Run complete test suite
+        run: python -m pytest -q
+      - name: Capture native Qt and GrabCut evidence
+        run: python scripts/ci_smoke_capture.py
+      - name: Upload native evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grabcut-${{ runner.os }}-evidence
+          path: training1/interactive_grabcut/ci_artifacts
+          if-no-files-found: error
