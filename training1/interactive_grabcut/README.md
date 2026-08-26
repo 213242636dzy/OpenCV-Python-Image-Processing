@@ -133,6 +133,8 @@ GitHub Actions 会在原生 Windows 和 macOS 运行器上使用 PyInstaller 构
 
 发行包已经包含 OpenCV、PySide6、中文界面字体和三张规定测试图，不需要另装 Python，运行时也不需要联网。
 macOS 构建未使用 Apple 开发者证书签名；首次打开若被 Gatekeeper 阻止，请右键应用选择“打开”。
+成功构建后，根目录工作流还会将两个 ZIP 和 `SHA256SUMS.txt` 发布到仓库的
+`Interactive GrabCut v1.0.0` Release，供课程提交直接下载。
 
 本地构建命令：
 
