@@ -107,11 +107,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: interactive-grabcut-v1.0.0
         run: |
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" release_artifacts/*.zip release_artifacts/SHA256SUMS.txt --clobber
-            gh release edit "$RELEASE_TAG" --target "$GITHUB_SHA" --title "Interactive GrabCut v1.0.0"
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" release_artifacts/*.zip release_artifacts/SHA256SUMS.txt --clobber --repo "$GITHUB_REPOSITORY"
+            gh release edit "$RELEASE_TAG" --target "$GITHUB_SHA" --title "Interactive GrabCut v1.0.0" --repo "$GITHUB_REPOSITORY"
           else
             gh release create "$RELEASE_TAG" release_artifacts/*.zip release_artifacts/SHA256SUMS.txt \
+              --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
               --title "Interactive GrabCut v1.0.0" \
               --notes "课程实训 1 的离线交互式 GrabCut 桌面应用。包含 Windows x86-64 便携版和 macOS Apple Silicon 应用；两端均已在原生 GitHub Actions 运行器完成自动测试、打包后启动检查和资源完整性检查。macOS 应用未使用 Apple 开发者证书签名。"
