@@ -41,6 +41,7 @@ def main() -> int:
     # 明确禁用 OpenCL；本项目不调用 CUDA/GPU，也不进行任何网络请求。
     cv2.ocl.setUseOpenCL(False)
 
+    from app.fonts import install_bundled_ui_font
     from app.main_window import MainWindow
     from app.styles import APP_STYLE
 
@@ -48,6 +49,7 @@ def main() -> int:
     app.setApplicationName("交互式图像分割实训 1")
     app.setOrganizationName("OpenCV Course")
     app.setStyle("Fusion")
+    install_bundled_ui_font(app)
     app.setStyleSheet(APP_STYLE)
 
     try:

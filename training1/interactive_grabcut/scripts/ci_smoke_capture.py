@@ -23,9 +23,11 @@ import cv2
 import numpy as np
 import PySide6
 from PySide6.QtCore import qVersion
+from PySide6.QtGui import QRawFont
 from PySide6.QtWidgets import QApplication
 
 from app.constants import DrawingTool, LabelMode
+from app.fonts import install_bundled_ui_font
 from app.geometry import AnnotationCommand
 from app.main_window import MainWindow
 
@@ -36,6 +38,8 @@ def main() -> int:
 
     cv2.ocl.setUseOpenCL(False)
     app = QApplication.instance() or QApplication([])
+    font_family = install_bundled_ui_font(app)
+    raw_font = QRawFont.fromFont(app.font())
     window = MainWindow()
     window.resize(1280, 720)
     window.show()
@@ -63,6 +67,8 @@ def main() -> int:
         "pyside6": PySide6.__version__,
         "qt": qVersion(),
         "qt_platform": os.environ["QT_QPA_PLATFORM"],
+        "application_font_family": font_family,
+        "font_supports_chinese": raw_font.supportsCharacter(ord("测")),
         "opencl_enabled": bool(cv2.ocl.useOpenCL()),
         "window_logical_size": [window.width(), window.height()],
         "screenshot_pixel_size": [window.grab().width(), window.grab().height()],

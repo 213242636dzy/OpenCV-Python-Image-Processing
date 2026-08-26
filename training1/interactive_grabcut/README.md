@@ -15,6 +15,7 @@
 - 一次保存界面截图、二值 mask、RGB 前景、轮廓叠加图和 JSON 实验记录。
 - 启动时关闭 OpenCL，不使用 CUDA、GPU、云端模型或网络接口。
 - OpenCV 使用 `opencv-python-headless` wheel；窗口完全由 PySide6 提供，避免两套 GUI 运行库冲突。
+- 随软件加载精简的 Noto Sans CJK SC 界面字体子集，避免英文版 Windows 缺少中文字体时显示方框。
 
 ## 安装与运行
 
@@ -116,6 +117,9 @@ Windows/macOS 自动测试矩阵见 `.github/workflows/cross-platform-tests.yml`
 原生 CI 还会执行 `scripts/ci_smoke_capture.py`，生成窗口截图与环境 JSON 作为可下载证据。
 
 Linux 构建容器若缺少 Qt 系统库，应先安装发行版提供的 `libegl1`；Windows 和 macOS wheel 不需要这一步。
+
+字体子集基于 Noto Sans CJK SC，依据 SIL Open Font License 1.1 分发；许可文本位于
+`assets/fonts/OFL-1.1.txt`。
 
 完整人工验收步骤见 `EXPERIMENT_CHECKLIST.md`。
 本次构建环境的测试记录见 `TEST_REPORT.md`。

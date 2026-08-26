@@ -21,6 +21,9 @@ class GuiSmokeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.app = QApplication.instance() or QApplication([])
+        from app.fonts import install_bundled_ui_font
+
+        cls.font_family = install_bundled_ui_font(cls.app)
 
     def test_window_load_segment_reset_and_close(self) -> None:
         from app.constants import DrawingTool, LabelMode
@@ -32,6 +35,7 @@ class GuiSmokeTests(unittest.TestCase):
         window.show()
         self.app.processEvents()
         self.assertTrue(window.isVisible())
+        self.assertTrue(self.font_family)
         self.assertEqual(len(window.tool_buttons), 9)
         self.assertEqual(len(window.label_buttons), 4)
 

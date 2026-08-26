@@ -37,7 +37,11 @@ REQUIRED = [
     "app/canvas.py",
     "app/grabcut_engine.py",
     "app/exporter.py",
+    "app/fonts.py",
     "scripts/ci_smoke_capture.py",
+    "assets/fonts/NotoSansCJKsc-UI-Subset.otf",
+    "assets/fonts/UI_CHARS.txt",
+    "assets/fonts/OFL-1.1.txt",
     "setup_windows.bat",
     "run_windows.bat",
     "setup_macos.command",
@@ -76,6 +80,10 @@ def main() -> int:
         path = ROOT / relative
         if path.is_file() and not path.read_bytes().startswith(magic):
             errors.append(f"图像文件头不正确：{relative}")
+
+    font_path = ROOT / "assets/fonts/NotoSansCJKsc-UI-Subset.otf"
+    if font_path.is_file() and font_path.stat().st_size > 500_000:
+        errors.append("界面字体子集异常过大，请检查是否误提交了完整字体")
 
     if errors:
         print("项目检查失败：")
