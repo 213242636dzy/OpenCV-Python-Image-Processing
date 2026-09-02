@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import cv2
-from PySide6.QtCore import QElapsedTimer, Qt, QTimer
+from PySide6.QtCore import QElapsedTimer, Qt, QTimer, Signal
 from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
@@ -38,6 +38,7 @@ from .image_io import ImageIOError, read_bgr
 
 
 class MainWindow(QMainWindow):
+    foreground_ready = Signal(object, str)
     MAX_UNDO = 20
 
     def __init__(self) -> None:
@@ -96,6 +97,10 @@ class MainWindow(QMainWindow):
         self.save_action.setShortcut(QKeySequence.StandardKey.Save)
         self.save_action.setToolTip("停止计时并保存界面截图、mask、RGB前景和轮廓图（Ctrl+S）")
         toolbar.addAction(self.save_action)
+
+        self.send_action = QAction("发送前景到测试 3", self)
+        self.send_action.setToolTip("把当前 GrabCut 结果作为透明前景送入贴图模块")
+        toolbar.addAction(self.send_action)
 
         self.exit_action = QAction("退出", self)
         self.exit_action.setShortcut(QKeySequence.StandardKey.Quit)
@@ -229,6 +234,7 @@ class MainWindow(QMainWindow):
         self.undo_action.triggered.connect(self.undo)
         self.reset_action.triggered.connect(self.reset_experiment)
         self.save_action.triggered.connect(self.save_all)
+        self.send_action.triggered.connect(self.send_foreground_to_test3)
         self.exit_action.triggered.connect(self.close)
         self.input_canvas.annotation_committed.connect(self._on_annotation)
         self.input_canvas.polygon_message.connect(self._on_polygon_message)
@@ -374,6 +380,16 @@ class MainWindow(QMainWindow):
             f"目录：{bundle.directory}",
         )
 
+    def send_foreground_to_test3(self) -> None:
+        if not self.engine.initialized or self.current_path is None:
+            QMessageBox.information(self, "暂无前景", "请先完成至少一次交互分割。")
+            return
+        rgb = cv2.cvtColor(self.engine.original_bgr, cv2.COLOR_BGR2RGB)
+        alpha = self.engine.binary_mask()
+        rgba = cv2.merge((rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2], alpha))
+        self.foreground_ready.emit(rgba, f"测试1_{self.current_path.stem}_前景.png")
+        self.state_label.setText("状态：透明分割前景已发送到测试 3")
+
     def _update_views(self) -> None:
         if not self.engine.has_image:
             self.input_canvas.set_image(None)
@@ -455,6 +471,7 @@ class MainWindow(QMainWindow):
         self.undo_action.setEnabled(bool(self.undo_stack))
         self.reset_action.setEnabled(has_image)
         self.save_action.setEnabled(self.engine.initialized)
+        self.send_action.setEnabled(self.engine.initialized)
         self._update_count_label()
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802

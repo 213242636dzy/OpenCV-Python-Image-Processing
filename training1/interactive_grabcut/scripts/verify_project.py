@@ -35,14 +35,24 @@ REQUIRED = [
     "README.md",
     "TEST_REPORT.md",
     "EXPERIMENT_CHECKLIST.md",
+    "TEST2_3_CHECKLIST.md",
     "app/main_window.py",
     "app/canvas.py",
     "app/grabcut_engine.py",
     "app/exporter.py",
     "app/fonts.py",
+    "app/suite_window.py",
+    "app/curve_text_widget.py",
+    "app/curve_text_engine.py",
+    "app/surface_sticker_widget.py",
+    "app/surface_engine.py",
     "scripts/ci_smoke_capture.py",
     "scripts/verify_packaged_app.py",
-    "assets/fonts/NotoSansCJKsc-UI-Subset.otf",
+    "assets/fonts/NotoSansCJKsc-Regular.otf",
+    "assets/fonts/NotoSerifSC-VF.ttf",
+    "assets/fonts/MaShanZheng-Regular.ttf",
+    "assets/fonts/ZCOOLXiaoWei-Regular.ttf",
+    "assets/fonts/LongCang-Regular.ttf",
     "assets/fonts/UI_CHARS.txt",
     "assets/fonts/OFL-1.1.txt",
     "setup_windows.bat",
@@ -52,6 +62,11 @@ REQUIRED = [
     "test_images/LENA.jpg",
     "test_images/baymax.jpeg",
     "test_images/cat.jpg",
+    "training_images/rainbow_reference.jpg",
+    "training_images/planar_reference.jpg",
+    "training_images/planar_foreground.jpg",
+    "training_images/planar_source_reference.jpg",
+    "training_images/cylinder_reference.png",
 ]
 
 
@@ -78,15 +93,20 @@ def main() -> int:
         "test_images/LENA.jpg": b"\x89PNG\r\n\x1a\n",  # 仓库原文件扩展名为 jpg，内容实际为 PNG
         "test_images/baymax.jpeg": b"\xff\xd8\xff",
         "test_images/cat.jpg": b"\xff\xd8\xff",
+        "training_images/rainbow_reference.jpg": b"\xff\xd8\xff",
+        "training_images/planar_reference.jpg": b"\xff\xd8\xff",
+        "training_images/planar_foreground.jpg": b"\xff\xd8\xff",
+        "training_images/planar_source_reference.jpg": b"\xff\xd8\xff",
+        "training_images/cylinder_reference.png": b"\x89PNG\r\n\x1a\n",
     }
     for relative, magic in image_magic.items():
         path = ROOT / relative
         if path.is_file() and not path.read_bytes().startswith(magic):
             errors.append(f"图像文件头不正确：{relative}")
 
-    font_path = ROOT / "assets/fonts/NotoSansCJKsc-UI-Subset.otf"
-    if font_path.is_file() and font_path.stat().st_size > 500_000:
-        errors.append("界面字体子集异常过大，请检查是否误提交了完整字体")
+    font_path = ROOT / "assets/fonts/NotoSansCJKsc-Regular.otf"
+    if font_path.is_file() and not 150_000 <= font_path.stat().st_size <= 1_000_000:
+        errors.append("Noto Sans CJK SC 课程字符子集大小异常")
 
     if errors:
         print("项目检查失败：")

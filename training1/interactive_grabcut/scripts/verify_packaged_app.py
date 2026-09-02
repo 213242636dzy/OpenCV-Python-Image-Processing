@@ -23,13 +23,13 @@ def _configure_utf8_console() -> None:
 def _target() -> tuple[Path, Path]:
     system = platform.system()
     if system == "Windows":
-        root = DIST / "InteractiveGrabCut"
-        return root, root / "InteractiveGrabCut.exe"
+        root = DIST / "InteractiveVisionTraining"
+        return root, root / "InteractiveVisionTraining.exe"
     if system == "Darwin":
-        root = DIST / "InteractiveGrabCut.app"
-        return root, root / "Contents" / "MacOS" / "InteractiveGrabCut"
-    root = DIST / "InteractiveGrabCut"
-    return root, root / "InteractiveGrabCut"
+        root = DIST / "InteractiveVisionTraining.app"
+        return root, root / "Contents" / "MacOS" / "InteractiveVisionTraining"
+    root = DIST / "InteractiveVisionTraining"
+    return root, root / "InteractiveVisionTraining"
 
 
 def main() -> int:
@@ -40,6 +40,23 @@ def main() -> int:
         errors.append(f"缺少发行包：{package_root}")
     if not executable.is_file():
         errors.append(f"缺少可执行入口：{executable}")
+    packaged_files = {path.name for path in package_root.rglob("*") if path.is_file()}
+    for required_name in (
+        "NotoSansCJKsc-Regular.otf",
+        "NotoSerifSC-VF.ttf",
+        "MaShanZheng-Regular.ttf",
+        "ZCOOLXiaoWei-Regular.ttf",
+        "LongCang-Regular.ttf",
+        "LENA.jpg",
+        "baymax.jpeg",
+        "cat.jpg",
+        "rainbow_reference.jpg",
+        "planar_foreground.jpg",
+        "planar_source_reference.jpg",
+        "TEST2_3_CHECKLIST.md",
+    ):
+        if required_name not in packaged_files:
+            errors.append(f"发行包缺少资源：{required_name}")
     if errors:
         print("发行包结构检查失败：")
         for error in errors:

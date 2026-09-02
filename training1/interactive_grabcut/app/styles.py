@@ -11,7 +11,10 @@ QToolButton:hover, QPushButton:hover { border-color: #3978d4; background: #f2f7f
 QToolButton:checked, QPushButton:checked { background: #3978d4; color: white; border-color: #3978d4; }
 QGroupBox { font-weight: 600; border: 1px solid #d8dee6; border-radius: 8px; margin-top: 10px; padding-top: 10px; background: white; }
 QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 4px; }
-QComboBox, QSpinBox { background: white; border: 1px solid #cbd4df; border-radius: 5px; padding: 5px; }
+QComboBox, QSpinBox, QLineEdit { background: white; border: 1px solid #cbd4df; border-radius: 5px; padding: 5px; }
+QTabWidget::pane { border: 0; }
+QTabBar::tab { background:#e8edf4; color:#334155; padding:9px 18px; margin-right:2px; font-weight:650; }
+QTabBar::tab:selected { background:#2563eb; color:white; }
 QStatusBar { background: #1f2937; color: white; }
 QStatusBar QLabel { color: white; padding: 3px 8px; }
 QSplitter::handle { background: #d8dee6; width: 2px; }

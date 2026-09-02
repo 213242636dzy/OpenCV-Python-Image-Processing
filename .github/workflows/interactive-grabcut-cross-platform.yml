@@ -1,4 +1,4 @@
-name: interactive-grabcut-cross-platform
+name: interactive-vision-training-v2-cross-platform
 
 permissions:
   contents: write
@@ -6,7 +6,7 @@ permissions:
 on:
   push:
     branches:
-      - codex/interactive-grabcut-cross-platform-ci
+      - codex/interactive-vision-training-v2
     paths:
       - "training1/interactive_grabcut/**"
       - ".github/workflows/interactive-grabcut-cross-platform.yml"
@@ -21,11 +21,11 @@ jobs:
           - os: windows-latest
             python-version: "3.12"
             package-platform: Windows-x86_64
-            archive-name: InteractiveGrabCut-Windows-x86_64.zip
+            archive-name: InteractiveVisionTraining-Windows-x86_64.zip
           - os: macos-latest
             python-version: "3.12"
             package-platform: macOS-arm64
-            archive-name: InteractiveGrabCut-macOS-arm64.zip
+            archive-name: InteractiveVisionTraining-macOS-arm64.zip
     runs-on: ${{ matrix.os }}
     env:
       QT_QPA_PLATFORM: offscreen
@@ -51,7 +51,7 @@ jobs:
         run: python -m pip check
       - name: Run complete test suite
         run: python -m pytest -q
-      - name: Capture native Qt and GrabCut evidence
+      - name: Capture native three-module Qt evidence
         run: python scripts/ci_smoke_capture.py
       - name: Build portable desktop application
         run: python -m PyInstaller --noconfirm --clean InteractiveGrabCut.spec
@@ -62,38 +62,38 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force release_artifacts | Out-Null
-          Compress-Archive -Path dist/InteractiveGrabCut -DestinationPath release_artifacts/${{ matrix.archive-name }}
+          Compress-Archive -Path dist/InteractiveVisionTraining -DestinationPath release_artifacts/${{ matrix.archive-name }}
       - name: Create macOS application ZIP
         if: runner.os == 'macOS'
         shell: bash
         run: |
           mkdir -p release_artifacts
-          ditto -c -k --sequesterRsrc --keepParent dist/InteractiveGrabCut.app release_artifacts/${{ matrix.archive-name }}
+          ditto -c -k --sequesterRsrc --keepParent dist/InteractiveVisionTraining.app release_artifacts/${{ matrix.archive-name }}
       - name: Upload native evidence
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: grabcut-${{ runner.os }}-evidence
+          name: vision-training-v2-${{ runner.os }}-evidence
           path: training1/interactive_grabcut/ci_artifacts
           if-no-files-found: error
       - name: Upload portable application
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: InteractiveGrabCut-${{ matrix.package-platform }}
+          name: InteractiveVisionTraining-${{ matrix.package-platform }}
           path: training1/interactive_grabcut/release_artifacts/${{ matrix.archive-name }}
           if-no-files-found: error
           retention-days: 30
 
   publish-release:
-    if: github.ref == 'refs/heads/codex/interactive-grabcut-cross-platform-ci' && success()
+    if: github.ref == 'refs/heads/codex/interactive-vision-training-v2' && success()
     needs: native-test
     runs-on: ubuntu-latest
     steps:
       - name: Download verified portable applications
         uses: actions/download-artifact@v4
         with:
-          pattern: InteractiveGrabCut-*
+          pattern: InteractiveVisionTraining-*
           path: release_artifacts
           merge-multiple: true
       - name: Generate checksums
@@ -105,15 +105,15 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: interactive-grabcut-v1.0.0
+          RELEASE_TAG: interactive-vision-training-v2.0.0
         run: |
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" release_artifacts/*.zip release_artifacts/SHA256SUMS.txt --clobber --repo "$GITHUB_REPOSITORY"
-            gh release edit "$RELEASE_TAG" --target "$GITHUB_SHA" --title "Interactive GrabCut v1.0.0" --repo "$GITHUB_REPOSITORY"
+            gh release edit "$RELEASE_TAG" --target "$GITHUB_SHA" --title "OpenCV Interactive Training v2.0.0" --repo "$GITHUB_REPOSITORY"
           else
             gh release create "$RELEASE_TAG" release_artifacts/*.zip release_artifacts/SHA256SUMS.txt \
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
-              --title "Interactive GrabCut v1.0.0" \
-              --notes "课程实训 1 的离线交互式 GrabCut 桌面应用。包含 Windows x86-64 便携版和 macOS Apple Silicon 应用；两端均已在原生 GitHub Actions 运行器完成自动测试、打包后启动检查和资源完整性检查。macOS 应用未使用 Apple 开发者证书签名。"
+              --title "OpenCV Interactive Training v2.0.0" \
+              --notes "专业技能实训 1 的离线桌面套件，包含测试 1 交互分割、测试 2 路径文字、测试 3 平/柱面贴图和跨模块透明前景传递。Windows x86-64 与 macOS Apple Silicon 成品均在原生 GitHub Actions 运行器完成自动测试、三页截图、打包后启动和资源完整性检查。macOS 应用未使用 Apple 开发者证书签名。"
           fi

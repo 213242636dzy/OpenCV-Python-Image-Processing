@@ -8,5 +8,6 @@ __pycache__/
 build/
 dist/
 ci_artifacts/
+ci_artifacts_*/
 release_artifacts/
 results/*/

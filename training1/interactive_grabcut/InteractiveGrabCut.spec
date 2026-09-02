@@ -6,13 +6,15 @@ from pathlib import Path
 
 
 ROOT = Path(SPECPATH)
-APP_NAME = "InteractiveGrabCut"
+APP_NAME = "InteractiveVisionTraining"
 
 datas = [
     (str(ROOT / "assets"), "assets"),
     (str(ROOT / "test_images"), "test_images"),
+    (str(ROOT / "training_images"), "training_images"),
     (str(ROOT / "README.md"), "."),
     (str(ROOT / "EXPERIMENT_CHECKLIST.md"), "."),
+    (str(ROOT / "TEST2_3_CHECKLIST.md"), "."),
 ]
 
 a = Analysis(
@@ -57,9 +59,9 @@ if sys.platform == "darwin":
         collection,
         name=f"{APP_NAME}.app",
         icon=None,
-        bundle_identifier="edu.opencv-course.interactive-grabcut",
+        bundle_identifier="edu.opencv-course.interactive-vision-training",
         info_plist={
-            "CFBundleDisplayName": "Interactive GrabCut",
+            "CFBundleDisplayName": "OpenCV Interactive Training",
             "CFBundleName": APP_NAME,
             "NSHighResolutionCapable": True,
         },

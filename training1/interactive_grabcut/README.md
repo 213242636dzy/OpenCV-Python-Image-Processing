@@ -1,6 +1,12 @@
-# 测试 1：交互式图像分割
+# OpenCV 交互实训套件（测试 1–3）
 
-这是依据课程第 5 讲和实训评分要求实现的桌面软件。程序使用 OpenCV GrabCut，在本地 CPU 上完成矩形初始化、前景/背景人工修正、多轮迭代、实验计时、交互计数和结果保存。
+这是依据课程评分要求实现的统一桌面软件，包含三个互相关联的实验页签：
+
+1. **测试 1 · 交互分割**：保留原有 OpenCV GrabCut、九种标记工具、计时计数与五类结果导出。
+2. **测试 2 · 路径文字**：读取规定彩虹背景，用户手绘文字路径，将 4–10 个文字逐字旋转到局部切线方向；提供 5 个真实中文字体家族和 6 种独立艺术效果，以及位置、字号、颜色、透明度和描边调整。
+3. **测试 3 · 平/柱面贴图**：用户拖动决定位置，拖右下角手柄决定大小；支持平面、柱面弯曲、旋转、透明度、颜色协调、撤销、计时和真实交互计数。
+
+测试 1 的透明分割前景和测试 2 的透明文字图层，都可以一键发送到测试 3 继续融合，因此三项实验不是互相孤立的演示程序。
 
 ## 已实现功能
 
@@ -15,7 +21,7 @@
 - 一次保存界面截图、二值 mask、RGB 前景、轮廓叠加图和 JSON 实验记录。
 - 启动时关闭 OpenCL，不使用 CUDA、GPU、云端模型或网络接口。
 - OpenCV 使用 `opencv-python-headless` wheel；窗口完全由 PySide6 提供，避免两套 GUI 运行库冲突。
-- 随软件加载精简的 Noto Sans CJK SC 界面字体子集，避免英文版 Windows 缺少中文字体时显示方框。
+- 随软件加载 5 套 OFL 中文字体的课程字符子集，覆盖完整界面、评分文档、默认示例和 ASCII；正常 Windows/macOS 还会对其他输入使用系统字体回退。
 
 ## 安装与运行
 
@@ -70,7 +76,7 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
-## 最短操作流程
+## 测试 1 最短操作流程
 
 1. 点击“打开规定测试图”，读取 `LENA.jpg`、`baymax.jpeg` 或 `cat.jpg`。
 2. 使用矩形工具紧贴目标拖出初始框；松开后自动完成第 1 次分割。
@@ -112,29 +118,30 @@ python scripts/verify_project.py
 python -m unittest discover -s tests -v
 ```
 
-测试覆盖项目结构、语法、九种工具、真实 GrabCut、中文路径、结果导出、三张规定图片和 Qt 窗口启动。
-Windows/macOS 自动测试矩阵见 `.github/workflows/cross-platform-tests.yml`。
+测试覆盖项目结构、语法、九种工具、真实 GrabCut、中文路径、结果导出、三张规定分割图、逐字切线排版、4–10 字校验、平面/柱面变换、透明融合、跨模块传递和三页 Qt 窗口启动。
+Windows/macOS 自动测试矩阵见仓库根目录 `.github/workflows/interactive-grabcut-cross-platform.yml`。
 原生 CI 还会执行 `scripts/ci_smoke_capture.py`，生成窗口截图与环境 JSON 作为可下载证据。
 
 Linux 构建容器若缺少 Qt 系统库，应先安装发行版提供的 `libegl1`；Windows 和 macOS wheel 不需要这一步。
 
-字体子集基于 Noto Sans CJK SC，依据 SIL Open Font License 1.1 分发；许可文本位于
-`assets/fonts/OFL-1.1.txt`。
+内置的 Noto Sans/Serif CJK SC、Ma Shan Zheng、ZCOOL XiaoWei 和 Long Cang 均依据
+SIL Open Font License 1.1 分发；许可与来源位于 `assets/fonts/`。
 
 完整人工验收步骤见 `EXPERIMENT_CHECKLIST.md`。
+测试 2 与测试 3 的评分点检测和 4 分钟现场演示脚本见 `TEST2_3_CHECKLIST.md`。
 本次构建环境的测试记录见 `TEST_REPORT.md`。
 
 ## 无需 Python 的便携发行包
 
 GitHub Actions 会在原生 Windows 和 macOS 运行器上使用 PyInstaller 构建成品，并在上传前实际启动一次：
 
-- Windows：`InteractiveGrabCut-Windows-x86_64.zip`，解压后双击 `InteractiveGrabCut.exe`；
-- macOS：`InteractiveGrabCut-macOS-<架构>.zip`，解压后打开 `InteractiveGrabCut.app`。
+- Windows：`InteractiveVisionTraining-Windows-x86_64.zip`，解压后双击 `InteractiveVisionTraining.exe`；
+- macOS：`InteractiveVisionTraining-macOS-<架构>.zip`，解压后打开 `InteractiveVisionTraining.app`。
 
 发行包已经包含 OpenCV、PySide6、中文界面字体和三张规定测试图，不需要另装 Python，运行时也不需要联网。
 macOS 构建未使用 Apple 开发者证书签名；首次打开若被 Gatekeeper 阻止，请右键应用选择“打开”。
 成功构建后，根目录工作流还会将两个 ZIP 和 `SHA256SUMS.txt` 发布到仓库的
-`Interactive GrabCut v1.0.0` Release，供课程提交直接下载。
+`OpenCV Interactive Training v2.0.0` Release，供课程提交直接下载。
 
 本地构建命令：
 

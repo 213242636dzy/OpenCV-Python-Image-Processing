@@ -27,9 +27,9 @@ from PySide6.QtGui import QRawFont
 from PySide6.QtWidgets import QApplication
 
 from app.constants import DrawingTool, LabelMode
-from app.fonts import install_bundled_ui_font
+from app.fonts import creative_font_options, install_bundled_ui_font
 from app.geometry import AnnotationCommand
-from app.main_window import MainWindow
+from app.suite_window import TrainingSuiteWindow
 
 
 def main() -> int:
@@ -40,12 +40,13 @@ def main() -> int:
     app = QApplication.instance() or QApplication([])
     font_family = install_bundled_ui_font(app)
     raw_font = QRawFont.fromFont(app.font())
-    window = MainWindow()
+    window = TrainingSuiteWindow()
     window.resize(1280, 720)
     window.show()
     app.processEvents()
-    window._load_path(ROOT / "test_images" / "LENA.jpg")
-    window._on_annotation(
+    segmentation = window.segmentation
+    segmentation._load_path(ROOT / "test_images" / "LENA.jpg")
+    segmentation._on_annotation(
         AnnotationCommand(
             kind=DrawingTool.RECTANGLE.value,
             points=((35, 35), (476, 35), (476, 476), (35, 476)),
@@ -55,9 +56,36 @@ def main() -> int:
     )
     app.processEvents()
 
-    screenshot = output_dir / "native_qt_grabcut.png"
-    if not window.grab().save(str(screenshot), "PNG"):
-        raise RuntimeError("CI 界面截图保存失败")
+    test1_screenshot = output_dir / "native_test1_grabcut.png"
+    if not window.grab().save(str(test1_screenshot), "PNG"):
+        raise RuntimeError("测试 1 界面截图保存失败")
+
+    curve = window.curve_text
+    window.tabs.setCurrentWidget(curve)
+    curve.load_prescribed_background()
+    curve.font_combo.setCurrentIndex(2)  # 毛笔艺术字体，作为评分截图证据。
+    h2, w2 = curve.background_rgb.shape[:2]
+    points = []
+    for index in range(100):
+        normalized = index / 99
+        x = int(w2 * (0.06 + normalized * 0.88))
+        y = int(h2 * (0.66 - 0.34 * (1 - ((normalized - 0.5) * 2) ** 2)))
+        points.append((x, y))
+    curve.canvas.set_curve(points)
+    if not curve.render_text():
+        raise RuntimeError("测试 2 曲线文字渲染失败")
+    app.processEvents()
+    if not window.grab().save(str(output_dir / "native_test2_curve_text.png"), "PNG"):
+        raise RuntimeError("测试 2 界面截图保存失败")
+
+    sticker = window.surface_sticker
+    window.tabs.setCurrentWidget(sticker)
+    sticker.load_prescribed_materials()
+    sticker.surface_combo.setCurrentIndex(1)
+    sticker.commit_current_operation()
+    app.processEvents()
+    if not window.grab().save(str(output_dir / "native_test3_surface_sticker.png"), "PNG"):
+        raise RuntimeError("测试 3 界面截图保存失败")
     evidence = {
         "platform": platform.platform(),
         "python": platform.python_version(),
@@ -68,14 +96,20 @@ def main() -> int:
         "qt": qVersion(),
         "qt_platform": os.environ["QT_QPA_PLATFORM"],
         "application_font_family": font_family,
+        "creative_font_families": [label for label, _ in creative_font_options()],
         "font_supports_chinese": raw_font.supportsCharacter(ord("测")),
         "opencl_enabled": bool(cv2.ocl.useOpenCL()),
         "window_logical_size": [window.width(), window.height()],
         "screenshot_pixel_size": [window.grab().width(), window.grab().height()],
         "source_image": "LENA.jpg",
-        "source_size": [window.engine.width, window.engine.height],
-        "grabcut_initialized": window.engine.initialized,
-        "interaction_count": window.interaction_count,
+        "source_size": [segmentation.engine.width, segmentation.engine.height],
+        "grabcut_initialized": segmentation.engine.initialized,
+        "test1_interaction_count": segmentation.interaction_count,
+        "test2_rendered": curve.layer_rgba is not None,
+        "test2_glyph_count": len(curve.placements),
+        "test3_rendered": sticker.result_rgb is not None,
+        "test3_interaction_count": sticker.interaction_count,
+        "suite_tab_count": window.tabs.count(),
     }
     (output_dir / "environment.json").write_text(
         json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8"
